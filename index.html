@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Click Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+        }
+        #game-field {
+            width: 200px;
+            height: 200px;
+            background-color: #4CAF50;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 20px 0;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            user-select: none;
+            position: relative;
+        }
+        .christmas-decor {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            background-size: cover;
+        }
+        .decor-top-left {
+            top: -20px;
+            left: -20px;
+            background-image: url('https://cdn-icons-png.flaticon.com/512/2718/2718254.png');
+        }
+        .decor-top-right {
+            top: -20px;
+            right: -20px;
+            background-image: url('https://cdn-icons-png.flaticon.com/512/2718/2718261.png');
+        }
+        .decor-bottom-left {
+            bottom: -20px;
+            left: -20px;
+            background-image: url('https://cdn-icons-png.flaticon.com/512/2718/2718270.png');
+        }
+        .decor-bottom-right {
+            bottom: -20px;
+            right: -20px;
+            background-image: url('https://cdn-icons-png.flaticon.com/512/2718/2718276.png');
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #messages {
+            margin-top: 20px;
+            font-size: 18px;
+            color: #333;
+        }
+        #skins {
+            margin: 20px 0;
+        }
+        .skin-option {
+            margin: 5px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            cursor: pointer;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Click Game</h1>
+<p>Clicks: <span id="click-count">0</span></p>
+<p>Time Remaining: <span id="time-remaining">10</span> seconds</p>
+<button id="start-button">Start Game</button>
+<div id="game-field">Click me!</div>
+<div id="messages"></div>
+<button id="skins-button">Skins</button>
+<div id="skins" style="display: none;">
+    <div class="skin-option" data-color="#4CAF50" data-text-color="white">Green</div>
+    <div class="skin-option" data-color="#FF5733" data-text-color="white">Orange</div>
+    <div class="skin-option" data-color="#3498DB" data-text-color="white">Blue</div>
+    <div class="skin-option" data-color="#8E44AD" data-text-color="white">Purple</div>
+    <div class="skin-option" data-color="#2ECC71" data-text-color="white">Light Green</div>
+    <div class="skin-option" data-color="#C0392B" data-text-color="white" data-style="christmas">Christmas</div>
+</div>
+
+<script>
+    const gameField = document.getElementById('game-field');
+    const startButton = document.getElementById('start-button');
+    const clickCountDisplay = document.getElementById('click-count');
+    const timeRemainingDisplay = document.getElementById('time-remaining');
+    const messages = document.getElementById('messages');
+    const skinsButton = document.getElementById('skins-button');
+    const skinsContainer = document.getElementById('skins');
+    const skinOptions = document.querySelectorAll('.skin-option');
+
+    let clickCount = 0;
+    let timeRemaining = 10;
+    let timer = null;
+    let gameActive = false;
+
+    gameField.addEventListener('click', () => {
+        if (gameActive) {
+            clickCount++;
+            clickCountDisplay.textContent = clickCount;
+        }
+    });
+
+    startButton.addEventListener('click', () => {
+        if (!gameActive) {
+            startGame();
+        }
+    });
+
+    skinsButton.addEventListener('click', () => {
+        skinsContainer.style.display = skinsContainer.style.display === 'none' ? 'block' : 'none';
+    });
+
+    skinOptions.forEach(option => {
+        option.addEventListener('click', () => {
+            const color = option.getAttribute('data-color');
+            const textColor = option.getAttribute('data-text-color');
+            const style = option.getAttribute('data-style');
+
+            gameField.style.backgroundColor = color;
+            gameField.style.color = textColor;
+            gameField.innerHTML = "Click me!"; // Reset content
+            skinsContainer.style.display = 'none';
+
+            if (style === 'christmas') {
+                gameField.innerHTML += `
+                    <div class="christmas-decor decor-top-left"></div>
+                    <div class="christmas-decor decor-top-right"></div>
+                    <div class="christmas-decor decor-bottom-left"></div>
+                    <div class="christmas-decor decor-bottom-right"></div>
+                `;
+            }
+        });
+    });
+
+    function startGame() {
+        clickCount = 0;
+        timeRemaining = 10;
+        clickCountDisplay.textContent = clickCount;
+        timeRemainingDisplay.textContent = timeRemaining;
+        messages.textContent = '';
+        gameActive = true;
+
+        timer = setInterval(() => {
+            timeRemaining--;
+            timeRemainingDisplay.textContent = timeRemaining;
+
+            if (timeRemaining <= 0) {
+                endGame();
+            }
+        }, 1000);
+    }
+
+    function endGame() {
+        clearInterval(timer);
+        gameActive = false;
+        messages.innerHTML = `<p>Great!</p>`;
+
+        if (clickCount < 50) {
+            messages.innerHTML += `<p>Not bad, keep practicing!</p>`;
+        } else if (clickCount < 100) {
+            messages.innerHTML += `<p>Good job!</p>`;
+        } else {
+            messages.innerHTML += `<p>Incredible clicking skills!</p>`;
+        }
+    }
+</script>
+
+</body>
+</html>
